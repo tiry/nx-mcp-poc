@@ -49,7 +49,10 @@ The Nuxeo MCP Server provides the following tools:
 
 - `get_repository_info`: Get information about the Nuxeo repository
 - `get_children`: Get the children of a document
-- `search`: Search for documents
+- `search`: Search for documents using NXQL queries
+- `natural_search`: Search for documents using natural language queries (automatically converted to NXQL)
+- `search_repository`: **NEW** - Search the Nuxeo repository using Elasticsearch with natural language and ACL filtering
+- `search_audit`: **NEW** - Search audit logs using natural language (administrators only)
 - `get_document`: Get a document by path or ID, with options for blob and renditions
 - `create_document`: Create a new document
 - `update_document`: Update an existing document
@@ -62,6 +65,7 @@ The Nuxeo MCP Server provides the following resources:
 - `nuxeo://info`: Basic information about the connected Nuxeo server
 - `nuxeo://document/{path}`: Get a document by path
 - `nuxeo://document/id/{uid}`: Get a document by ID
+- `nuxeo://nxql-guide`: Comprehensive NXQL query language documentation
 
 ## Examples
 
@@ -79,13 +83,110 @@ print(result)
 ```python
 from fastmcp import use_tool
 
+# Using NXQL directly
 result = use_tool("nuxeo", "search", {
     "query": "SELECT * FROM Document WHERE ecm:primaryType = 'File'",
     "pageSize": 10,
     "currentPageIndex": 0
 })
 print(result)
+
+# Using Natural Language Search
+result = use_tool("nuxeo", "natural_search", {
+    "query": "find all PDFs created by john in the last month",
+    "pageSize": 10,
+    "currentPageIndex": 0
+})
+print(result)
+
+# Get explanation of the generated NXQL
+result = use_tool("nuxeo", "natural_search", {
+    "query": "show me draft invoices from this week sorted by date",
+    "explain": True,
+    "pageSize": 5
+})
+print(f"Generated NXQL: {result['nxql']}")
+print(f"Explanation: {result['explanation']}")
 ```
+
+### Elasticsearch Repository Search (NEW)
+
+```python
+from fastmcp import use_tool
+
+# Search repository with natural language via Elasticsearch
+result = use_tool("nuxeo", "search_repository", {
+    "query": "PDFs created last week by John",
+    "limit": 10
+})
+
+# Results include document metadata and highlights
+for doc in result['results']:
+    print(f"Title: {doc['title']}")
+    print(f"Path: {doc['path']}")
+    if 'highlights' in doc:
+        print(f"Highlights: {doc['highlights']}")
+```
+
+### Elasticsearch Audit Search (NEW - Admin Only)
+
+```python
+from fastmcp import use_tool
+
+# Search audit logs (requires administrator privileges)
+result = use_tool("nuxeo", "search_audit", {
+    "query": "show deletions from yesterday",
+    "limit": 20
+})
+
+# Results include audit event details
+for event in result['results']:
+    print(f"Event: {event['eventId']}")
+    print(f"User: {event['principalName']}")
+    print(f"Date: {event['eventDate']}")
+    print(f"Document: {event['docPath']}")
+```
+
+#### Natural Language Search Examples
+
+The natural language search tool understands various query patterns:
+
+**Document Types:**
+- "find all invoices"
+- "show me PDFs"
+- "list folders"
+- "get images"
+
+**Time-based Queries:**
+- "documents created today"
+- "files from last week"
+- "documents from the last 30 days"
+- "files since 2024-01-01"
+
+**User-based Queries:**
+- "documents created by john"
+- "alice's files"
+- "documents modified by admin"
+
+**Content Queries:**
+- "documents containing 'budget'"
+- "files with title 'Project Report'"
+- "documents where title starts with 'Draft'"
+
+**Path Queries:**
+- "documents in folder '/workspaces/project'"
+- "files under /default-domain"
+
+**State Queries:**
+- "draft documents"
+- "published files"
+- "archived documents"
+- "active documents not in trash"
+
+**Complex Queries:**
+- "find invoices created by john from last week sorted by title limit 10"
+- "show me active PDFs containing 'report' created this month"
+- "latest version of files under /workspaces"
 
 ### Get a Document
 

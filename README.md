@@ -1,7 +1,7 @@
 # Nuxeo MCP Server
 
-![Build and Unit Tests](https://github.com/tiry/nx-mcp-poc/actions/workflows/build-and-unit-tests.yml/badge.svg)
-![Integration Tests](https://github.com/tiry/nx-mcp-poc/actions/workflows/integration-tests.yml/badge.svg)
+![Build and Unit Tests](https://github.com/maretha-io/nx-mcp/actions/workflows/build-and-unit-tests.yml/badge.svg)
+![Integration Tests](https://github.com/maretha-io/nx-mcp/actions/workflows/integration-tests.yml/badge.svg)
 
 A Model Context Protocol (MCP) server for interacting with a Nuxeo Content Repository Server. This server provides tools, resources, and prompt templates for AI assistants to interact with Nuxeo content repositories.
 
@@ -9,8 +9,13 @@ A Model Context Protocol (MCP) server for interacting with a Nuxeo Content Repos
 
 - 🔄 Connect to a Nuxeo Content Repository Server
 - 🛠️ MCP Tools for common Nuxeo operations (query, retrieve, create, update, delete documents)
+- 🔍 Natural Language Search - convert plain English queries to NXQL automatically
+- ⚡ **NEW: Elasticsearch Passthrough** - Natural language search via Elasticsearch with security filtering
+- 🔐 **NEW: Audit Log Search** - Query audit logs using natural language (admin only)
+- 🔒 **NEW: OAuth2 Authentication** - Secure browser-based authentication with token storage
 - 📚 MCP Resources for accessing Nuxeo content
 - 🧩 MCP Resource Templates for dynamic content access
+- 📖 NXQL Guide Resource - comprehensive documentation for query syntax
 - 🐳 Docker support for testing with a Nuxeo server
 - 🧪 Comprehensive test suite with pytest
 
@@ -28,6 +33,8 @@ pip install nuxeo-mcp
 
 ## Quick Start
 
+### Basic Authentication (Default)
+
 ```bash
 # Start the MCP server with default settings
 nuxeo-mcp
@@ -36,8 +43,26 @@ nuxeo-mcp
 NUXEO_URL="http://mynuxeo.example.com/nuxeo" NUXEO_USERNAME="admin" NUXEO_PASSWORD="secret" nuxeo-mcp
 ```
 
+### OAuth2 Authentication (Recommended)
+
+```bash
+# Configure OAuth2 credentials
+export NUXEO_URL="https://mynuxeo.example.com/nuxeo"
+export NUXEO_OAUTH_CLIENT_ID="your-client-id"
+export NUXEO_OAUTH_CLIENT_SECRET="your-client-secret"
+
+# Start with OAuth2 (browser will open for authentication)
+nuxeo-mcp --oauth2
+
+# Or use environment variable
+NUXEO_AUTH_METHOD=oauth2 nuxeo-mcp
+```
+
+See the [Authentication Guide](specs/20_authentication.md) for detailed OAuth2 setup instructions.
+
 ## Documentation
 
+- [Authentication Guide](specs/20_authentication.md) - OAuth2 and authentication setup
 - [Developer Guide](DEVELOPER.md) - How to build, run tests, and extend the project
 - [Usage Guide](USAGE.md) - How to use the MCP Server
 
@@ -72,14 +97,22 @@ docker run -p 8181:8181 --name nuxeo-mcp nuxeo-mcp-server
 
 You can configure the nuxeo-mcp server using environment variables:
 
-#### Nuxeo Connection Settings
+#### Authentication Settings
 
 ```bash
-# Run with custom Nuxeo connection settings
+# Basic Authentication (default)
 docker run -p 8181:8181 \
   -e NUXEO_URL="http://mynuxeo.example.com/nuxeo" \
   -e NUXEO_USERNAME="admin" \
   -e NUXEO_PASSWORD="secret" \
+  nuxeo-mcp-server
+
+# OAuth2 Authentication
+docker run -p 8181:8181 \
+  -e NUXEO_URL="https://mynuxeo.example.com/nuxeo" \
+  -e NUXEO_AUTH_METHOD="oauth2" \
+  -e NUXEO_OAUTH_CLIENT_ID="your-client-id" \
+  -e NUXEO_OAUTH_CLIENT_SECRET="your-client-secret" \
   nuxeo-mcp-server
 ```
 

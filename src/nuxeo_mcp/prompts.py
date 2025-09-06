@@ -19,17 +19,15 @@ ResourceFunction = Callable[[], Dict[str, Any]]
 def register_prompts(mcp, nuxeo) -> None:
     """
     Register MCP prompts with the FastMCP server.
-    
+
     Args:
         mcp: The FastMCP server instance
         nuxeo: The Nuxeo client instance
     """
     # Get the Nuxeo URL and username from the client
-    nuxeo_url = nuxeo.client.host    # Resource: Nuxeo Server Information
+    nuxeo_url = nuxeo.client.host  # Resource: Nuxeo Server Information
 
     @mcp.prompt
     def list_doc_by_type(type: str) -> str:
         """Do a search"""
         return f"Search for the 20 most recent documents of type {type}."
-
-

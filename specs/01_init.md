@@ -27,7 +27,7 @@ As first step:
  - add the needed dependencies
  - initialize an empty MCP Server
  - initialize unit tests 
- - create a ReadMe.md proviging all details
+ - create a ReadMe.md providing all details
 
 
 
