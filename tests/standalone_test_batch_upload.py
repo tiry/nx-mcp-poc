@@ -12,7 +12,7 @@ from nuxeo.documents import Document
 
 # Configuration
 url = "https://nightly-2023.nuxeocloud.com/nuxeo"
-username = "nuxeo_mcp"
+username = "automated_test_user"
 password = "**********"
 test_file = "/tmp/test_image.png"
 

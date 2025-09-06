@@ -152,7 +152,7 @@ Example `servers.json`:
     "demo": {
       "name": "demo",
       "url": "https://nightly-2023.nuxeocloud.com/nuxeo",
-      "username": "nuxeo_mcp",
+      "username": "automated_test_user",
       "password": "**********",
       "description": "Demo Nuxeo Server",
       "is_default": true

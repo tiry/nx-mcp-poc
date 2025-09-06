@@ -14,7 +14,7 @@ import json
 
 # Configuration
 nuxeo_url = "https://nightly-2023.nuxeocloud.com/nuxeo"
-username = "nuxeo_mcp"
+username = "automated_test_user"
 password = "**********"
 auth = (username, password)
 

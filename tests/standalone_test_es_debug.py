@@ -54,7 +54,7 @@ print("-" * 50)
 
 # Test with simple direct queries
 nuxeo_url = "https://nightly-2023.nuxeocloud.com/nuxeo"
-auth = ("nuxeo_mcp", "**********")
+auth = ("automated_test_user", "**********")
 
 simple_queries = [
     {

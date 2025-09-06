@@ -13,7 +13,7 @@ from nuxeo.models import FileBlob
 
 # Configuration
 url = "https://nightly-2023.nuxeocloud.com/nuxeo"
-username = "nuxeo_mcp"
+username = "automated_test_user"
 password = "**********"
 
 print("Testing create_document as Claude Desktop would use it")

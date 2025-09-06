@@ -80,8 +80,8 @@ class ServerManager:
             ServerConfig(
                 name="nightly",
                 url="https://nightly-2023.nuxeocloud.com/nuxeo",
-                username="nuxeo_mcp",
-                password="************",
+                username="automated_test_user",
+                password="***********", # pwd required
                 description="Demo Nuxeo Server",
                 is_default=False
             )

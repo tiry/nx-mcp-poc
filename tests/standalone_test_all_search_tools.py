@@ -12,7 +12,7 @@ import json
 
 # Configuration
 url = "https://nightly-2023.nuxeocloud.com/nuxeo"
-username = "nuxeo_mcp"
+username = "automated_test_user"
 password = "**********"
 
 print("Testing All Search Tools")

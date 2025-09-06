@@ -36,3 +36,8 @@ env/
 
 # Local configuration
 .env
+
+# AI Tools
+.agent-os/
+.claude/
+.serena/

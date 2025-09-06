@@ -171,7 +171,7 @@ def main() -> None:
     # Get configuration from environment variables
     # Use the hardcoded defaults if not provided
     nuxeo_url = os.environ.get("NUXEO_URL", "https://nightly-2023.nuxeocloud.com/nuxeo")
-    username = os.environ.get("NUXEO_USERNAME", "nuxeo_mcp") # or create a new user yourself
+    username = os.environ.get("NUXEO_USERNAME", "automated_test_user") # or create a new user yourself
     password = os.environ.get("NUXEO_PASSWORD", "*********") # password hidden
     auth_method = os.environ.get("NUXEO_AUTH_METHOD", "basic").lower()
     

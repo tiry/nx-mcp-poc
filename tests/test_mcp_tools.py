@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """
 Test MCP tools with authentication.
+This is a standalone script for manual testing.
 """
 
 import sys
@@ -9,14 +10,22 @@ import os
 # Add the source directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
+# Import credential helper
+from test_credentials import get_test_credentials
 from nuxeo_mcp.server import NuxeoMCPServer
 
-# Create server with hardcoded credentials
+# Get credentials from environment or prompt
+print("Getting credentials...")
+username, password = get_test_credentials(
+    prompt_prefix="Testing MCP tools against https://nightly-2023.nuxeocloud.com/nuxeo"
+)
+
+# Create server with credentials
 print("Creating MCP server with basic auth...")
 server = NuxeoMCPServer(
     nuxeo_url="https://nightly-2023.nuxeocloud.com/nuxeo",
-    username="nuxeo_mcp", 
-    password="**********",
+    username=username,
+    password=password,
     use_oauth2=False
 )
 

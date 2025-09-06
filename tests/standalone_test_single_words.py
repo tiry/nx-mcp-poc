@@ -12,7 +12,7 @@ from nuxeo.client import Nuxeo
 
 # Configuration
 url = "https://nightly-2023.nuxeocloud.com/nuxeo"
-username = "nuxeo_mcp"
+username = "automated_test_user"
 password = "**********"
 
 print("Testing Single-Word Natural Language Queries")

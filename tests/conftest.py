@@ -16,6 +16,7 @@ from typing import Generator, List, Dict, Any, Optional, Union, Callable, Tuple,
 from _pytest.config import Config
 from _pytest.config.argparsing import Parser
 from _pytest.nodes import Item
+from test_credentials import get_test_credentials
 
 # Add command line options for integration tests and Docker configuration
 def pytest_addoption(parser: Parser) -> None:
@@ -161,6 +162,8 @@ def nuxeo_container(docker_client: docker.DockerClient, request: pytest.FixtureR
     try:
         # Get the Nuxeo URL and credentials
         nuxeo_url_value = os.environ.get("NUXEO_URL", "http://localhost:8080/nuxeo")
+        # For Docker-based integration tests, use default Administrator credentials
+        # since this is a local test container
         username = os.environ.get("NUXEO_USERNAME", "Administrator")
         password = os.environ.get("NUXEO_PASSWORD", "Administrator")
         
@@ -211,8 +214,20 @@ def nuxeo_url() -> str:
 @pytest.fixture(scope="session")
 def nuxeo_credentials() -> Tuple[str, str]:
     """Get the credentials for the Nuxeo server."""
-    username = os.environ.get("NUXEO_USERNAME", "Administrator")
-    password = os.environ.get("NUXEO_PASSWORD", "Administrator")
+    # Use the credential helper to get or prompt for credentials
+    username, password = get_test_credentials()
+    return username, password
+
+
+@pytest.fixture(scope="session")
+def live_nuxeo_credentials() -> Tuple[str, str]:
+    """
+    Get credentials for the live Nuxeo test server.
+    This will prompt the user for credentials if not set in environment variables.
+    """
+    username, password = get_test_credentials(
+        prompt_prefix="These tests connect to the live Nuxeo server at https://nightly-2023.nuxeocloud.com/nuxeo"
+    )
     return username, password
 
 
