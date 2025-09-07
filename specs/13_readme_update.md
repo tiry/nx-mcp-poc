@@ -56,8 +56,8 @@ We will add GitHub badges for the build/tests and integration tests workflows to
 ```markdown
 # Nuxeo MCP Server
 
-![Build and Unit Tests](https://github.com/maretha-io/nx-mcp/actions/workflows/build-and-unit-tests.yml/badge.svg)
-![Integration Tests](https://github.com/maretha-io/nx-mcp/actions/workflows/integration-tests.yml/badge.svg)
+![Build and Unit Tests](https://github.com/tiry/nx-mcp-poc/actions/workflows/build-and-unit-tests.yml/badge.svg)
+![Integration Tests](https://github.com/tiry/nx-mcp-poc/actions/workflows/integration-tests.yml/badge.svg)
 
 A Model Context Protocol (MCP) server for Nuxeo Content Repository.
 
@@ -104,7 +104,7 @@ This guide provides information for developers who want to build, run tests, and
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/maretha-io/nx-mcp.git
+git clone https://github.com/tiry/nx-mcp-poc.git
 cd nx-mcp
 ```
 

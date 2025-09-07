@@ -1,7 +1,7 @@
 # Nuxeo MCP Server
 
-![Build and Unit Tests](https://github.com/maretha-io/nx-mcp/actions/workflows/build-and-unit-tests.yml/badge.svg)
-![Integration Tests](https://github.com/maretha-io/nx-mcp/actions/workflows/integration-tests.yml/badge.svg)
+![Build and Unit Tests](https://github.com/tiry/nx-mcp-poc/actions/workflows/build-and-unit-tests.yml/badge.svg)
+![Integration Tests](https://github.com/tiry/nx-mcp-poc/actions/workflows/integration-tests.yml/badge.svg)
 
 A Model Context Protocol (MCP) server for interacting with a Nuxeo Content Repository Server. This server provides tools, resources, and prompt templates for AI assistants to interact with Nuxeo content repositories.
 
