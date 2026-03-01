@@ -51,6 +51,10 @@ class TestOAuth2Integration:
         """Test OAuth2 callback server handling."""
         # Start callback server
         server = HTTPServer(("localhost", 0), OAuth2CallbackHandler)
+        # Initialize required attributes
+        server.auth_code = None
+        server.state = None
+        server.auth_error = None
         port = server.server_address[1]
         
         # Start server in thread
@@ -75,6 +79,10 @@ class TestOAuth2Integration:
         """Test OAuth2 callback server error handling."""
         # Start callback server
         server = HTTPServer(("localhost", 0), OAuth2CallbackHandler)
+        # Initialize required attributes
+        server.auth_code = None
+        server.state = None
+        server.auth_error = None
         port = server.server_address[1]
         
         # Start server in thread
@@ -96,8 +104,12 @@ class TestOAuth2Integration:
     
     @patch('webbrowser.open')
     @patch('nuxeo_mcp.auth.OAuth2')
-    def test_oauth2_auth_flow_simulation(self, mock_oauth2_class, mock_browser_open):
+    @patch('nuxeo_mcp.auth.secrets.token_urlsafe')
+    def test_oauth2_auth_flow_simulation(self, mock_token_urlsafe, mock_oauth2_class, mock_browser_open):
         """Test simulated OAuth2 authentication flow."""
+        # Mock the state generation to return a known value
+        mock_token_urlsafe.return_value = "test-state"
+        
         # Setup mocks
         mock_oauth2 = MagicMock()
         mock_oauth2.create_authorization_url.return_value = (
@@ -118,7 +130,7 @@ class TestOAuth2Integration:
             mock_response = MagicMock()
             mock_response.status_code = 200
             mock_response.json.return_value = {"id": "testuser"}
-            mock_client.client.get.return_value = mock_response
+            mock_client.client.request.return_value = mock_response
             mock_client.client.auth = mock_oauth2
             mock_nuxeo_class.return_value = mock_client
             
@@ -164,53 +176,62 @@ class TestOAuth2Integration:
     
     def test_token_refresh_simulation(self):
         """Test token refresh mechanism."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            token_manager = TokenManager(backend="encrypted_file")
-            token_manager.storage = EncryptedFileStorage(Path(tmpdir))
-            
-            # Store initial token
-            initial_token = {
-                "access_token": "old-access-token",
-                "refresh_token": "refresh-token",
-                "expires_at": time.time() - 100,  # Expired
+        # Use in-memory backend
+        token_manager = TokenManager(backend="memory")
+        
+        # Store initial token
+        initial_token = {
+            "access_token": "old-access-token",
+            "refresh_token": "refresh-token",
+            "expires_at": time.time() - 100,  # Expired
+        }
+        
+        # Setup handler
+        oauth2_config = OAuth2Config(
+            client_id="test-client",
+            client_secret="test-secret",
+        )
+        server_config = NuxeoServerConfig(
+            url="http://test.com",
+            auth_method=AuthMethod.OAUTH2,
+            oauth2_config=oauth2_config,
+        )
+        
+        # Setup mocks before creating handler
+        with patch('nuxeo_mcp.auth.OAuth2') as mock_oauth2_class:
+            mock_oauth2 = MagicMock()
+            mock_oauth2.refresh_token.return_value = {
+                "access_token": "new-access-token",
+                "refresh_token": "new-refresh-token",
+                "expires_in": 3600,
             }
-            token_manager.store_token("http://test.com", initial_token)
+            mock_oauth2_class.return_value = mock_oauth2
             
-            # Setup handler
-            oauth2_config = OAuth2Config(
-                client_id="test-client",
-                client_secret="test-secret",
-            )
-            server_config = NuxeoServerConfig(
-                url="http://test.com",
-                auth_method=AuthMethod.OAUTH2,
-                oauth2_config=oauth2_config,
-            )
-            
-            with patch('nuxeo_mcp.auth.OAuth2') as mock_oauth2_class:
-                mock_oauth2 = MagicMock()
-                mock_oauth2.refresh_token.return_value = {
-                    "access_token": "new-access-token",
-                    "refresh_token": "new-refresh-token",
-                    "expires_in": 3600,
-                }
-                mock_oauth2_class.return_value = mock_oauth2
+            with patch('nuxeo_mcp.auth.Nuxeo') as mock_nuxeo_class:
+                mock_client = MagicMock()
+                mock_client.client.auth = mock_oauth2
+                mock_nuxeo_class.return_value = mock_client
                 
-                with patch('nuxeo_mcp.auth.Nuxeo') as mock_nuxeo_class:
-                    mock_client = MagicMock()
-                    mock_client.client.auth = mock_oauth2
-                    mock_nuxeo_class.return_value = mock_client
-                    
-                    handler = OAuth2AuthHandler(server_config, token_manager)
-                    
-                    # Trigger refresh
-                    result = handler.refresh_token()
-                    
-                    assert result is True
-                    
-                    # Check new token was stored
-                    new_token = token_manager.get_token("http://test.com")
-                    assert new_token["access_token"] == "new-access-token"
+                handler = OAuth2AuthHandler(server_config, token_manager)
+                
+                # Mock the token manager's get_token to return our initial token
+                with patch.object(token_manager, 'get_token', return_value=initial_token):
+                    with patch.object(token_manager, 'store_token') as mock_store:
+                        # Trigger refresh
+                        result = handler.refresh_token()
+                        
+                        assert result is True
+                        
+                        # Verify refresh_token was called with the correct token
+                        mock_oauth2.refresh_token.assert_called_once_with(
+                            refresh_token="refresh-token"
+                        )
+                        
+                        # Verify the new token was stored
+                        assert mock_store.called
+                        stored_url, stored_token = mock_store.call_args[0]
+                        assert stored_url == "http://test.com"
+                        assert stored_token["access_token"] == "new-access-token"
 
 
 @pytest.mark.integration

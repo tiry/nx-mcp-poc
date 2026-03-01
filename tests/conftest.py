@@ -214,8 +214,10 @@ def nuxeo_url() -> str:
 @pytest.fixture(scope="session")
 def nuxeo_credentials() -> Tuple[str, str]:
     """Get the credentials for the Nuxeo server."""
-    # Use the credential helper to get or prompt for credentials
-    username, password = get_test_credentials()
+    # For Docker-based integration tests, use default Administrator credentials
+    # since this is a local test container
+    username = os.environ.get("NUXEO_USERNAME", "Administrator")
+    password = os.environ.get("NUXEO_PASSWORD", "Administrator")
     return username, password
 
 
