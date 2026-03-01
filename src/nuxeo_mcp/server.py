@@ -170,12 +170,16 @@ def main() -> None:
 
     # Get configuration from environment variables
     # Use the hardcoded defaults if not provided
-    nuxeo_url = os.environ.get("NUXEO_URL", "https://nightly-2023.nuxeocloud.com/nuxeo")
-    username = os.environ.get("NUXEO_USERNAME", "automated_test_user") # or create a new user yourself
-    password = os.environ.get("NUXEO_PASSWORD", "*********") # password hidden
+    nuxeo_url = os.environ.get("NUXEO_URL", "http://localhost:8080/nuxeo")
+    username = os.environ.get("NUXEO_USERNAME", "Administrator")
+    password = os.environ.get("NUXEO_PASSWORD", "Administrator")
     auth_method = os.environ.get("NUXEO_AUTH_METHOD", "basic").lower()
     
-    logger.info(f"Starting with config - URL: {nuxeo_url}, User: {username}, Auth: {auth_method}")
+    logger.info(f"Starting Nuxeo MCP Server")
+    logger.info(f"  NUXEO_URL from env: {os.environ.get('NUXEO_URL', 'NOT SET')}")
+    logger.info(f"  Using URL: {nuxeo_url}")
+    logger.info(f"  Using username: {username}")
+    logger.info(f"  Auth method: {auth_method}")
     
     # Check if OAuth2 should be used
     use_oauth2 = args.oauth2 or auth_method == "oauth2"
