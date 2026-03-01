@@ -125,7 +125,13 @@ class NuxeoMCPServer:
             name="nuxeo-mcp-server",
         )
 
-        add_healthcheck(self.mcp)
+        # Add healthcheck with server configuration info
+        server_info = {
+            "nuxeo_url": self.nuxeo_url,
+            "username": self.username,
+            "auth_method": "oauth2" if use_oauth2 else "basic"
+        }
+        add_healthcheck(self.mcp, server_info)
         
         # Register tools and resources without authentication wrapper for basic auth
         # (The Nuxeo client already has the auth configured)
@@ -141,11 +147,24 @@ class NuxeoMCPServer:
         self.mcp.run()
 
 
-def add_healthcheck(mcp):
-
+def add_healthcheck(mcp, server_info: Dict[str, str] = None):
+    """Add health check endpoint with server configuration info."""
+    
     @mcp.custom_route("/health", methods=["GET"])
     async def health_check(request: Request) -> PlainTextResponse:
-        return PlainTextResponse("OK")
+        import json
+        health_data = {
+            "status": "OK",
+            "server": "Nuxeo MCP Server"
+        }
+        
+        # Add server configuration info if available
+        if server_info:
+            health_data.update(server_info)
+        
+        # Return as JSON for easier parsing
+        from starlette.responses import JSONResponse
+        return JSONResponse(health_data)
 
 
 def main() -> None:

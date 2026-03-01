@@ -65,12 +65,20 @@ jobs:
           elapsed=$((current_time - start_time))
           if [ $elapsed -gt $timeout ]; then
             echo "Timeout waiting for MCP Server to start"
+            echo "=== MCP Server Logs ==="
+            docker compose logs mcp
             exit 1
           fi
           echo "Waiting for MCP Server to start... ($elapsed seconds)"
           sleep 2
         done
         echo "MCP Server is running"
+        echo ""
+        echo "=== MCP Server Configuration (from /health endpoint) ==="
+        curl -s http://localhost:8081/health | python -m json.tool
+        echo ""
+        echo "=== MCP Server Startup Logs ==="
+        docker compose logs mcp | head -50
         
     - name: Test search tool
       run: |
